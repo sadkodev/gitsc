@@ -1,0 +1,8 @@
+provider: gemini
+model: "gemini-pro"
+commit_format: "{type}({scope}): {message}"
+log:
+  path: "/var/logs/gitsc.log"
+  format: "nmap"
+smart_commit:
+  line_threshold: 150
