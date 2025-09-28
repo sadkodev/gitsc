@@ -1,7 +1,8 @@
+use async_trait::async_trait;
 use crate::error::Result;
 
 /// Represents a structured commit message.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct CommitMessage {
     pub commit_type: String,
     pub scope: Option<String>,
@@ -9,6 +10,7 @@ pub struct CommitMessage {
 }
 
 /// A trait for AI providers that can analyze a diff and suggest a commit message.
+#[async_trait]
 pub trait AIProvider {
     /// Analyzes a git diff and returns a structured commit message.
     ///
@@ -19,5 +21,5 @@ pub trait AIProvider {
     /// # Returns
     ///
     /// A `Result` containing the `CommitMessage`.
-    fn analyze_diff(&self, diff: &str) -> Result<CommitMessage>;
+    async fn analyze_diff(&self, diff: &str) -> Result<CommitMessage>;
 }
