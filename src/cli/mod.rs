@@ -19,8 +19,4 @@ pub struct Cli {
     /// Enable verbose output and developer debug logging.
     #[arg(short, long)]
     pub debug: bool,
-    
-    /// Enable help menu.
-    #[arg(short, long)]
-    pub help: bool,
 }
