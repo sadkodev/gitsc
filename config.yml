@@ -1,6 +1,7 @@
 provider: gemini
 model: "gemini-2.5-flash-lite"
 redis_url: "redis://127.0.0.1/"
+ollama_url: "http://localhost:11434"
 commit_format: "{type}({scope}): {message}"
 log:
   path: "/var/logs/gitsc.log"
