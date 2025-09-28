@@ -3,3 +3,4 @@ pub mod ollama;
 pub mod openai;
 
 pub use gemini::GeminiProvider;
+pub use ollama::OllamaProvider;
