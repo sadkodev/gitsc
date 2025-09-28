@@ -8,6 +8,7 @@ pub struct Config {
     pub provider: String,
     pub model: String,
     pub redis_url: Option<String>,
+    pub ollama_url: Option<String>,
     pub api_key: Option<String>,
     pub commit_format: String,
     pub log: LogConfig,
