@@ -12,6 +12,8 @@ pub enum Error {
     Io(std::io::Error),
     /// An error from the AI provider.
     Ai(String),
+    /// An error from the reqwest library
+    Reqwest(reqwest::Error),
     /// An error related to configuration.
     Config(String),
     /// An error for when there are no staged changes to analyze.
@@ -24,6 +26,7 @@ impl fmt::Display for Error {
             Self::Git(msg) => write!(f, "Git error: {}", msg),
             Self::Io(err) => write!(f, "I/O error: {}", err),
             Self::Ai(msg) => write!(f, "AI provider error: {}", msg),
+            Self::Reqwest(err) => write!(f, "Reqwest error: {}", err),
             Self::Config(msg) => write!(f, "Configuration error: {}", msg),
             Self::NoStagedChanges => write!(f, "No staged changes found to generate a commit message."),
         }
@@ -34,6 +37,7 @@ impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::Io(err) => Some(err),
+            Self::Reqwest(err) => Some(err),
             _ => None,
         }
     }
@@ -43,5 +47,11 @@ impl std::error::Error for Error {
 impl From<std::io::Error> for Error {
     fn from(err: std::io::Error) -> Self {
         Self::Io(err)
+    }
+}
+
+impl From<reqwest::Error> for Error {
+    fn from(err: reqwest::Error) -> Self {
+        Self::Reqwest(err)
     }
 }
