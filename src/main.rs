@@ -8,7 +8,7 @@ use gitsc::formatter::format_commit_message;
 use gitsc::git::{get_staged_diff, is_git_repository};
 use gitsc::logger;
 use log::{info, error, debug};
-use gitsc::ai::cache::redis_cache::RedisCache;
+use gitsc::ai::cache::{CacheRepository, sqlite_cache::SqliteCache};
 use gitsc::ai::cache::diff_hasher;
 use serde_json;
 use std::time::Instant;
@@ -40,19 +40,24 @@ async fn main() -> Result<(), Error> {
 
     let processed_diff = analyzer::analyze_diff(&diff, &config.smart_commit);
 
-    let cache = if let Some(redis_url) = &config.redis_url {
-        match RedisCache::new(redis_url) {
-            Ok(c) => {
-                debug!("Redis cache initialized successfully.");
-                Some(c)
-            },
-            Err(e) => {
-                error!("Failed to initialize Redis cache: {}", e);
-                None
+    let cache: Option<Box<dyn CacheRepository + Send + Sync>> = if config.cache_enabled.unwrap_or(false) {
+        if let Some(cache_path) = &config.cache_path {
+            match SqliteCache::new(cache_path).await {
+                Ok(c) => {
+                    debug!("SQLite cache initialized successfully at {:?}", cache_path);
+                    Some(Box::new(c))
+                },
+                Err(e) => {
+                    error!("Failed to initialize SQLite cache at {:?}: {}", cache_path, e);
+                    None
+                }
             }
+        } else {
+            error!("Cache enabled but no cache_path provided in config.");
+            None
         }
     } else {
-        debug!("Redis URL not configured, skipping cache initialization.");
+        debug!("Cache not enabled in config, skipping cache initialization.");
         None
     };
 
