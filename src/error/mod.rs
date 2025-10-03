@@ -18,6 +18,8 @@ pub enum Error {
     Config(String),
     /// An error for when there are no staged changes to analyze.
     NoStagedChanges,
+    /// An error from the SQLite cache.
+    Sqlite(tokio_rusqlite::Error),
 }
 
 impl fmt::Display for Error {
@@ -29,6 +31,7 @@ impl fmt::Display for Error {
             Self::Reqwest(err) => write!(f, "Reqwest error: {}", err),
             Self::Config(msg) => write!(f, "Configuration error: {}", msg),
             Self::NoStagedChanges => write!(f, "No staged changes found to generate a commit message."),
+            Self::Sqlite(err) => write!(f, "SQLite error: {}", err),
         }
     }
 }
@@ -53,5 +56,11 @@ impl From<std::io::Error> for Error {
 impl From<reqwest::Error> for Error {
     fn from(err: reqwest::Error) -> Self {
         Self::Reqwest(err)
+    }
+}
+
+impl From<tokio_rusqlite::Error> for Error {
+    fn from(err: tokio_rusqlite::Error) -> Self {
+        Self::Sqlite(err)
     }
 }
