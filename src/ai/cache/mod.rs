@@ -10,4 +10,3 @@ pub trait CacheRepository: Send + Sync {
     async fn get(&self, key: &str) -> Result<Option<String>>;
     async fn set(&self, key: &str, value: &str) -> Result<()>;
 }
-

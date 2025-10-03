@@ -3,10 +3,8 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::env;
 
-use crate::{
-    ai::repository::{AIProvider, CommitMessage},
-    error::{Error, Result},
-};
+use crate::ai::repository::{AIProvider, CommitMessage};
+use crate::error::{Error, Result};
 
 #[derive(Serialize)]
 struct GeminiRequest {
@@ -119,4 +117,3 @@ impl AIProvider for GeminiProvider {
         })
     }
 }
-

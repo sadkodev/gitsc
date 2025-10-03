@@ -1,15 +1,14 @@
 use clap::Parser;
-use gitsc::ai::cache::diff_hasher;
-use gitsc::ai::cache::{CacheRepository, sqlite_cache::SqliteCache};
+use gitsc::ai::cache::sqlite_cache::SqliteCache;
+use gitsc::ai::cache::{CacheRepository, diff_hasher};
 use gitsc::ai::providers::{GeminiProvider, OllamaProvider};
 use gitsc::ai::repository::AIProvider;
-use gitsc::analyzer;
 use gitsc::cli::Cli;
 use gitsc::config::load_config;
 use gitsc::error::Error;
 use gitsc::formatter::format_commit_message;
 use gitsc::git::{get_staged_diff, is_git_repository};
-use gitsc::logger;
+use gitsc::{analyzer, logger};
 use log::{debug, error, info};
 use serde_json;
 use std::fs;
@@ -32,62 +31,57 @@ async fn main() -> Result<(), Error> {
         Err(Error::NoStagedChanges) => {
             info!("No staged changes found.");
             return Ok(());
-        }
+        },
         Err(e) => {
             error!("An error occurred: {}", e);
             std::process::exit(1);
-        }
+        },
     };
 
     let processed_diff = analyzer::analyze_diff(&diff, &config.smart_commit);
 
-    let cache: Option<Box<dyn CacheRepository + Send + Sync>> =
-        if config.cache_enabled.unwrap_or(false) {
-            if let Some(cache_path_str) = &config.cache_path {
-                let expanded_cache_path = if let Some(s) = cache_path_str.to_str() {
-                    if s.starts_with("~/") {
-                        let home_dir = dirs::home_dir().ok_or_else(|| {
-                            Error::Config(
-                                "Could not find home directory for cache path expansion"
-                                    .to_string(),
-                            )
-                        })?;
-                        home_dir.join(&s[2..])
-                    } else {
-                        cache_path_str.clone()
-                    }
+    let cache: Option<Box<dyn CacheRepository + Send + Sync>> = if config
+        .cache_enabled
+        .unwrap_or(false)
+    {
+        if let Some(cache_path_str) = &config.cache_path {
+            let expanded_cache_path = if let Some(s) = cache_path_str.to_str() {
+                if s.starts_with("~/") {
+                    let home_dir = dirs::home_dir().ok_or_else(|| {
+                        Error::Config(
+                            "Could not find home directory for cache path expansion".to_string(),
+                        )
+                    })?;
+                    home_dir.join(&s[2..])
                 } else {
                     cache_path_str.clone()
-                };
-
-                if let Some(parent_dir) = expanded_cache_path.parent() {
-                    fs::create_dir_all(parent_dir)?;
-                }
-
-                match SqliteCache::new(&expanded_cache_path).await {
-                    Ok(c) => {
-                        debug!(
-                            "SQLite cache initialized successfully at {:?}",
-                            expanded_cache_path
-                        );
-                        Some(Box::new(c))
-                    }
-                    Err(e) => {
-                        error!(
-                            "Failed to initialize SQLite cache at {:?}: {}",
-                            expanded_cache_path, e
-                        );
-                        None
-                    }
                 }
             } else {
-                error!("Cache enabled but no cache_path provided in config.");
-                None
+                cache_path_str.clone()
+            };
+
+            if let Some(parent_dir) = expanded_cache_path.parent() {
+                fs::create_dir_all(parent_dir)?;
+            }
+
+            match SqliteCache::new(&expanded_cache_path).await {
+                Ok(c) => {
+                    debug!("SQLite cache initialized successfully at {:?}", expanded_cache_path);
+                    Some(Box::new(c))
+                },
+                Err(e) => {
+                    error!("Failed to initialize SQLite cache at {:?}: {}", expanded_cache_path, e);
+                    None
+                },
             }
         } else {
-            debug!("Cache not enabled in config, skipping cache initialization.");
+            error!("Cache enabled but no cache_path provided in config.");
             None
-        };
+        }
+    } else {
+        debug!("Cache not enabled in config, skipping cache initialization.");
+        None
+    };
 
     let diff_hash = diff_hasher::generate_diff_hash(&processed_diff);
     let mut commit_message: Option<gitsc::ai::repository::CommitMessage> = None;
@@ -100,18 +94,18 @@ async fn main() -> Result<(), Error> {
                     Ok(msg) => {
                         commit_message = Some(msg);
                         debug!("Commit message retrieved from cache.");
-                    }
+                    },
                     Err(e) => {
                         error!("Failed to deserialize cached commit message: {}", e);
-                    }
+                    },
                 }
-            }
+            },
             Ok(None) => {
                 debug!("Cache miss for diff hash: {}", diff_hash);
-            }
+            },
             Err(e) => {
                 error!("Error retrieving from Redis cache: {}", e);
-            }
+            },
         }
     }
 
@@ -126,11 +120,11 @@ async fn main() -> Result<(), Error> {
                     .ok_or_else(|| Error::Config("Ollama URL not configured".to_string()))?;
                 OllamaProvider::new(ollama_url, config.model.clone())
                     .map(|p| Box::new(p) as Box<dyn AIProvider + Send + Sync>)
-            }
+            },
             _ => {
                 error!("Error: Unsupported AI provider '{}'", config.provider);
                 std::process::exit(1);
-            }
+            },
         };
 
         match provider {
@@ -159,24 +153,24 @@ async fn main() -> Result<(), Error> {
                                             diff_hash, e
                                         );
                                     }
-                                }
+                                },
                                 Err(e) => {
                                     error!("Failed to serialize commit message for caching: {}", e);
-                                }
+                                },
                             }
                         }
                         commit_message = Some(msg);
-                    }
+                    },
                     Err(e) => {
                         error!("Error generating commit message: {}", e);
                         std::process::exit(1);
-                    }
+                    },
                 }
-            }
+            },
             Err(e) => {
                 error!("Error creating AI provider: {}", e);
                 std::process::exit(1);
-            }
+            },
         }
     }
 

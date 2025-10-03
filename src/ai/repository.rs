@@ -9,7 +9,8 @@ pub struct CommitMessage {
     pub message: String,
 }
 
-/// A trait for AI providers that can analyze a diff and suggest a commit message.
+/// A trait for AI providers that can analyze a diff and suggest a commit
+/// message.
 #[async_trait]
 pub trait AIProvider {
     /// Analyzes a git diff and returns a structured commit message.

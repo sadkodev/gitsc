@@ -32,7 +32,7 @@ impl fmt::Display for Error {
             Self::Config(msg) => write!(f, "Configuration error: {}", msg),
             Self::NoStagedChanges => {
                 write!(f, "No staged changes found to generate a commit message.")
-            }
+            },
             Self::Sqlite(err) => write!(f, "SQLite error: {}", err),
         }
     }

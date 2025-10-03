@@ -25,10 +25,7 @@ pub fn get_staged_diff() -> Result<String> {
 
     if !output.status.success() {
         let error_message = String::from_utf8_lossy(&output.stderr).to_string();
-        return Err(Error::Git(format!(
-            "Failed to get staged diff: {}",
-            error_message
-        )));
+        return Err(Error::Git(format!("Failed to get staged diff: {}", error_message)));
     }
 
     let diff = String::from_utf8_lossy(&output.stdout).to_string();
