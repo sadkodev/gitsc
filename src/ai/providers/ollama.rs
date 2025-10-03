@@ -2,10 +2,8 @@ use async_trait::async_trait;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    ai::repository::{AIProvider, CommitMessage},
-    error::{Error, Result},
-};
+use crate::ai::repository::{AIProvider, CommitMessage};
+use crate::error::{Error, Result};
 
 #[derive(Serialize)]
 struct OllamaRequest {
