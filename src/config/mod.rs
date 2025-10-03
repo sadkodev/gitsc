@@ -7,7 +7,8 @@ use std::path::PathBuf;
 pub struct Config {
     pub provider: String,
     pub model: String,
-    pub redis_url: Option<String>,
+    pub cache_enabled: Option<bool>,
+    pub cache_path: Option<PathBuf>,
     pub ollama_url: Option<String>,
     pub api_key: Option<String>,
     pub commit_format: String,
@@ -36,7 +37,7 @@ pub struct SmartCommitConfig {
 /// Loads the configuration. In debug builds, it loads from the current directory.
 pub fn load_config() -> Result<Config> {
     let config_path = if cfg!(debug_assertions) {
-        PathBuf::from("/home/sadko/.config/gitsc/config.yml")
+        PathBuf::from("/home/sadkodev/.config/gitsc/config.yml")
     } else {
         dirs::config_dir()
             .ok_or_else(|| Error::Config("Could not find config directory".to_string()))?
