@@ -30,7 +30,9 @@ impl fmt::Display for Error {
             Self::Ai(msg) => write!(f, "AI provider error: {}", msg),
             Self::Reqwest(err) => write!(f, "Reqwest error: {}", err),
             Self::Config(msg) => write!(f, "Configuration error: {}", msg),
-            Self::NoStagedChanges => write!(f, "No staged changes found to generate a commit message."),
+            Self::NoStagedChanges => {
+                write!(f, "No staged changes found to generate a commit message.")
+            }
             Self::Sqlite(err) => write!(f, "SQLite error: {}", err),
         }
     }

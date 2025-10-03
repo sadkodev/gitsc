@@ -13,4 +13,3 @@ pub fn generate_diff_hash(diff: &str) -> String {
     hasher.update(normalized_diff.as_bytes());
     format!("{:x}", hasher.finalize())
 }
-

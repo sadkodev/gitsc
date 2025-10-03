@@ -1,5 +1,5 @@
-use async_trait::async_trait;
 use crate::error::Result;
+use async_trait::async_trait;
 
 /// Represents a structured commit message.
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]

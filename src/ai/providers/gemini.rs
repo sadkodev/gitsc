@@ -79,16 +79,19 @@ impl AIProvider for GeminiProvider {
             .client
             .post(format!(
                 "https://generativelanguage.googleapis.com/v1/models/{}:generateContent?key={}",
-                self.model,
-                self.api_key
+                self.model, self.api_key
             ))
             .json(&request_body)
             .send()
             .await?;
 
         let response_text = response.text().await?;
-        let response_json: GeminiResponse = serde_json::from_str(&response_text)
-            .map_err(|e| Error::Ai(format!("Failed to parse Gemini response: {}. Raw response: {}", e, response_text)))?;
+        let response_json: GeminiResponse = serde_json::from_str(&response_text).map_err(|e| {
+            Error::Ai(format!(
+                "Failed to parse Gemini response: {}. Raw response: {}",
+                e, response_text
+            ))
+        })?;
 
         let text = response_json
             .candidates
@@ -116,3 +119,4 @@ impl AIProvider for GeminiProvider {
         })
     }
 }
+

@@ -6,12 +6,13 @@ pub fn format_commit_message(commit: &CommitMessage, format_template: &str) -> S
         .replace("{message}", &commit.message);
 
     match &commit.scope {
-        Some(scope) if !scope.is_empty() => {
-            base.replace("{scope}", scope)
-        }
+        Some(scope) if !scope.is_empty() => base.replace("{scope}", scope),
         _ => {
             // If scope is None or empty, remove the placeholder and potential surrounding parentheses.
-            base.replace("({scope})", "").replace("{scope}", "").trim().replace("  ", " ")
+            base.replace("({scope})", "")
+                .replace("{scope}", "")
+                .trim()
+                .replace("  ", " ")
         }
     }
 }

@@ -57,8 +57,12 @@ impl AIProvider for OllamaProvider {
             .await?;
 
         let response_text = response.text().await?;
-        let response_json: OllamaResponse = serde_json::from_str(&response_text)
-            .map_err(|e| Error::Ai(format!("Failed to parse Ollama response: {}. Raw response: {}", e, response_text)))?;
+        let response_json: OllamaResponse = serde_json::from_str(&response_text).map_err(|e| {
+            Error::Ai(format!(
+                "Failed to parse Ollama response: {}. Raw response: {}",
+                e, response_text
+            ))
+        })?;
 
         let text = response_json.response.trim().to_string();
 
